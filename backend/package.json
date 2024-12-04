@@ -1,0 +1,30 @@
+{
+  "name": "ecommerce",
+  "version": "1.0.0",
+  "description": "ecommerce website with codeigniter",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "codeigniter",
+    "cloth",
+    "suits"
+  ],
+  "author": "Ansari Sadaan",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.3",
+    "nodemon": "^3.1.7",
+    "uuid": "^11.0.3"
+  }
+}
