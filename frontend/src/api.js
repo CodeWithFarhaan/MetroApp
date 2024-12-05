@@ -29,3 +29,10 @@ export const initiatePayment = (paymentData) => api.post('/buy-ticket', paymentD
         Authorization: `Bearer ${localStorage.getItem('token')}`
     }
 });
+
+export const verifyTicketToken = (ticketToken) => api.post('/verify-ticket-token',{ticketToken},{
+    headers:{
+        'Content-Type':'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+});

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { initiatePayment } from "../api.js"; // API call
+import { initiatePayment, verifyTicketToken } from "../api.js"; // API call
 import Logout from "./Logout.jsx";
 import { IoMdTrain } from "react-icons/io";
 import { MdCalculate } from "react-icons/md";
@@ -32,14 +32,23 @@ const Dashboard = () => {
   const [destination, setDestination] = useState("");
   const [price, setPrice] = useState(0);
   const [stations, setStations] = useState([]);
+  const [ticketToken, setTicketToken] = useState(
+    localStorage.getItem("ticketToken") || ""
+  );
+  const [ticket, setTicket] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const token = localStorage.getItem("token");
 
+  if (!token) {
+    window.location.href = "/login";
+  }
+
   useEffect(() => {
-    if (!token) {
-      window.location.href = "/login";
-    }
+    setTicketToken("");
+  }, []);
+
+  useEffect(() => {
     if (selectedLine) {
       const lineData = metroData.find((line) => line.line === selectedLine);
       setStations(lineData ? lineData.stations : []);
@@ -68,20 +77,46 @@ const Dashboard = () => {
 
   const handlePayment = async () => {
     if (!source || !destination || price === 0) {
-      setError("Complete all fields and calculate the price before proceeding.");
+      setError(
+        "Complete all fields and calculate the price before proceeding."
+      );
       return;
     }
 
-    setError("");  // Reset error state before processing payment
+    setError(""); // Reset error state before processing payment
     setSuccess(""); // Reset success state
 
     try {
       const paymentData = { source, destination, price };
       const response = await initiatePayment(paymentData);
       console.log(response);
-      setSuccess(`Payment successful! Ticket Token: ${response.data.ticket.token}`);
+      setSuccess(
+        `Payment successful! Ticket Token: ${response.data.ticket.token}`
+      );
     } catch (err) {
       setError("An error occurred during payment. Please try again.");
+      console.error(err);
+    }
+  };
+
+  const handleVerifyTicket = async () => {
+    const tokenToVerify = ticketToken || localStorage.getItem("ticketToken");
+    if (!tokenToVerify) {
+      setError("Please enter valid ticket token");
+      return;
+    }
+    try {
+      const response = await verifyTicketToken(tokenToVerify);
+      if (response.data.success) {
+        setTicket(response.data.ticket);
+        setError("");
+        setSuccess("Ticket Verified Successfully");
+      } else {
+        setError("Ticket Not Found");
+        setTicket(null);
+      }
+    } catch (err) {
+      setError("An error occurred during ticket verification");
       console.error(err);
     }
   };
@@ -172,6 +207,46 @@ const Dashboard = () => {
 
         {error && <p className="mt-4 text-red-500">{error}</p>}
         {success && <p className="mt-4 text-green-500">{success}</p>}
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+            Verify Your Ticket
+          </h1>
+          <div className="space-y-4">
+            <input
+              type="text"
+              value={ticketToken}
+              onChange={(e) => setTicketToken(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your ticket number"
+            />
+            <button
+              onClick={handleVerifyTicket}
+              className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+            >
+              Verify Ticket
+            </button>
+          </div>
+          {ticket && (
+            <div className="mt-6 p-6 bg-gray-100 border border-gray-300 rounded-lg shadow-sm space-y-4">
+              <p className="text-gray-700">
+                <strong>Source:</strong> {ticket.source}
+              </p>
+              <p className="text-gray-700">
+                <strong>Destination:</strong> {ticket.destination}
+              </p>
+              <p className="text-gray-700">
+                <strong>Price:</strong> ₹{ticket.price}
+              </p>
+              <p className="text-gray-700">
+                <strong>Issued At:</strong>{" "}
+                {new Date(ticket.issuedAt).toLocaleString()}
+              </p>
+              <p className="text-gray-700">
+                <strong>Status:</strong> {ticket.status}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
