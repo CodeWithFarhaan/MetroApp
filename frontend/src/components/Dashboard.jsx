@@ -4,7 +4,7 @@ import Logout from "./Logout.jsx";
 import { IoMdTrain } from "react-icons/io";
 import { MdCalculate } from "react-icons/md";
 import { FaRupeeSign } from "react-icons/fa";
-
+import ReactQRCode from "react-qr-code";
 const metroData = [
   {
     line: "Line 1",
@@ -208,7 +208,7 @@ const Dashboard = () => {
         {error && <p className="mt-4 text-red-500">{error}</p>}
         {success && <p className="mt-4 text-green-500">{success}</p>}
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+          <h1 className="text-2xl mb-4 font-bold text-center text-purple-600 flex justify-between items-cente">
             Verify Your Ticket
           </h1>
           <div className="space-y-4">
@@ -227,7 +227,8 @@ const Dashboard = () => {
             </button>
           </div>
           {ticket && (
-            <div className="mt-6 p-6 bg-gray-100 border border-gray-300 rounded-lg shadow-sm space-y-4">
+            <div className="mt-6 p-6 bg-gray-100 border border-gray-300 rounded-lg shadow-sm space-y-4 flex items-start">
+            <div className="flex-1 space-y-2">
               <p className="text-gray-700">
                 <strong>Source:</strong> {ticket.source}
               </p>
@@ -245,6 +246,10 @@ const Dashboard = () => {
                 <strong>Status:</strong> {ticket.status}
               </p>
             </div>
+            <div className="ml-6 mt-1 relative">
+              <ReactQRCode value={JSON.stringify(ticket)} />
+            </div>
+          </div>          
           )}
         </div>
       </div>
