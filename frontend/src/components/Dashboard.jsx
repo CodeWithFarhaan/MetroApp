@@ -34,8 +34,6 @@ const Dashboard = () => {
   const [stations, setStations] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
-  const [ticketDetails, setTicketDetails] = useState(null); // State to hold ticket details
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -73,26 +71,15 @@ const Dashboard = () => {
       setError("Complete all fields and calculate the price before proceeding.");
       return;
     }
-    setShowModal(true); // Show the modal to confirm the ticket details
-    // Create a dummy ticket object to simulate a ticket before payment confirmation
-    setTicketDetails({
-      source,
-      destination,
-      price,
-      issuedAt: new Date(),
-      status: "Active",
-      ticketToken: `TICKET-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-    });
-  };
 
-  const confirmPayment = async () => {
+    setError("");  // Reset error state before processing payment
+    setSuccess(""); // Reset success state
+
     try {
       const paymentData = { source, destination, price };
       const response = await initiatePayment(paymentData);
-      console.log(response)
+      console.log(response);
       setSuccess(`Payment successful! Ticket Token: ${response.data.ticket.token}`);
-      setError("");
-      setShowModal(false); // Close the modal after successful payment
     } catch (err) {
       setError("An error occurred during payment. Please try again.");
       console.error(err);
@@ -186,38 +173,6 @@ const Dashboard = () => {
         {error && <p className="mt-4 text-red-500">{error}</p>}
         {success && <p className="mt-4 text-green-500">{success}</p>}
       </div>
-
-      {/* Modal for Ticket Details */}
-      {showModal && ticketDetails && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-            <h2 className="text-2xl font-bold text-center text-purple-600">Ticket Details</h2>
-            <div className="mt-4">
-              {/* <p><strong>User ID:</strong> {ticketDetails.userId}</p> */}
-              <p><strong>Source:</strong> {ticketDetails.source}</p>
-              <p><strong>Destination:</strong> {ticketDetails.destination}</p>
-              <p><strong>Price:</strong> ₹{ticketDetails.price}</p>
-              <p><strong>Issued At:</strong> {new Date(ticketDetails.issuedAt).toLocaleString()}</p>
-              <p><strong>Status:</strong> {ticketDetails.status}</p>
-              <p><strong>Ticket Token:</strong> {ticketDetails.ticketToken}</p>
-            </div>
-            <div className="mt-4 flex justify-between">
-              <button
-                className="bg-red-500 text-white py-2 px-4 rounded"
-                onClick={() => setShowModal(false)} // Close modal without payment
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-green-500 text-white py-2 px-4 rounded"
-                onClick={confirmPayment} // Proceed with payment
-              >
-                Confirm Payment
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
