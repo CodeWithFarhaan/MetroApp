@@ -5,6 +5,7 @@ import { IoMdTrain } from "react-icons/io";
 import { MdCalculate } from "react-icons/md";
 import { FaRupeeSign } from "react-icons/fa";
 import ReactQRCode from "react-qr-code";
+import ValidateTicket from "./ValidateTicket.jsx";
 const metroData = [
   {
     line: "Line 1",
@@ -57,6 +58,8 @@ const Dashboard = () => {
     }
   }, [selectedLine]);
 
+
+  // --------------------------------------------calculate price-----------------------------------------------------
   const calculatePrice = () => {
     const sourceStation = stations.find((station) => station.name === source);
     const destinationStation = stations.find(
@@ -75,6 +78,8 @@ const Dashboard = () => {
     }
   };
 
+  
+  // --------------------------------------------handle payment-----------------------------------------------------
   const handlePayment = async () => {
     if (!source || !destination || price === 0) {
       setError(
@@ -98,7 +103,9 @@ const Dashboard = () => {
       console.error(err);
     }
   };
+  
 
+  // --------------------------------------------handleVerifyTicket-----------------------------------------------------
   const handleVerifyTicket = async () => {
     const tokenToVerify = ticketToken || localStorage.getItem("ticketToken");
     if (!tokenToVerify) {
@@ -208,7 +215,7 @@ const Dashboard = () => {
         {error && <p className="mt-4 text-red-500">{error}</p>}
         {success && <p className="mt-4 text-green-500">{success}</p>}
         <div>
-          <h1 className="text-2xl mb-4 font-bold text-center text-purple-600 flex justify-between items-cente">
+          <h1 className="text-2xl mb-4 font-bold text-center text-blue-600 flex justify-between items-cente">
             Verify Your Ticket
           </h1>
           <div className="space-y-4">
@@ -228,30 +235,31 @@ const Dashboard = () => {
           </div>
           {ticket && (
             <div className="mt-6 p-6 bg-gray-100 border border-gray-300 rounded-lg shadow-sm space-y-4 flex items-start">
-            <div className="flex-1 space-y-2">
-              <p className="text-gray-700">
-                <strong>Source:</strong> {ticket.source}
-              </p>
-              <p className="text-gray-700">
-                <strong>Destination:</strong> {ticket.destination}
-              </p>
-              <p className="text-gray-700">
-                <strong>Price:</strong> ₹{ticket.price}
-              </p>
-              <p className="text-gray-700">
-                <strong>Issued At:</strong>{" "}
-                {new Date(ticket.issuedAt).toLocaleString()}
-              </p>
-              <p className="text-gray-700">
-                <strong>Status:</strong> {ticket.status}
-              </p>
+              <div className="flex-1 space-y-2">
+                <p className="text-gray-700">
+                  <strong>Source:</strong> {ticket.source}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Destination:</strong> {ticket.destination}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Price:</strong> ₹{ticket.price}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Issued At:</strong>{" "}
+                  {new Date(ticket.issuedAt).toLocaleString()}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Status:</strong> {ticket.status}
+                </p>
+              </div>
+              <div className="ml-6 mt-1 relative">
+                <ReactQRCode value={JSON.stringify(ticket)} />
+              </div>
             </div>
-            <div className="ml-6 mt-1 relative">
-              <ReactQRCode value={JSON.stringify(ticket)} />
-            </div>
-          </div>          
           )}
         </div>
+        <ValidateTicket ticket={ticket} />
       </div>
     </>
   );
